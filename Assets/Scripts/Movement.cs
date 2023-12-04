@@ -7,6 +7,7 @@ public class Movement : MonoBehaviour
     public float speedMultiplier = 1f;
     public Vector2 initialDirection;
     public LayerMask obstacleLayer;
+    private PacmanAgent aiagent;
 
     public new Rigidbody2D rigidbody { get; private set; }
     public Vector2 direction { get; private set; }
@@ -22,6 +23,7 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         ResetState();
+        aiagent = FindObjectOfType<PacmanAgent>();
     }
 
     public void ResetState()
@@ -60,9 +62,12 @@ public class Movement : MonoBehaviour
         {
             this.direction = direction;
             nextDirection = Vector2.zero;
+
+            aiagent.AgentAddReward(0.00001f);
         }
         else
         {
+            aiagent.AgentAddReward(-0.001f);
             nextDirection = direction;
         }
     }

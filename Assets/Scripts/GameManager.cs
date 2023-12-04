@@ -1,3 +1,6 @@
+using Google.Protobuf.WellKnownTypes;
+using Unity.MLAgents;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +9,7 @@ public class GameManager : MonoBehaviour
     public Ghost[] ghosts;
     public Pacman pacman;
     public Transform pellets;
+    private PacmanAgent aiagent;
 
     public Text gameOverText;
     public Text scoreText;
@@ -17,17 +21,15 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        aiagent = FindObjectOfType<PacmanAgent>();
         NewGame();
     }
 
     private void Update()
     {
-        if (lives <= 0 && Input.anyKeyDown) {
-            NewGame();
-        }
     }
 
-    private void NewGame()
+    public void NewGame()
     {
         SetScore(0);
         SetLives(1);
@@ -86,7 +88,12 @@ public class GameManager : MonoBehaviour
         if (lives > 0) {
             Invoke(nameof(ResetState), 3f);
         } else {
-            GameOver();
+            // End episode
+            aiagent.PacmanDead();
+
+            NewGame();
+            //GameOver();
+
         }
     }
 
@@ -96,6 +103,9 @@ public class GameManager : MonoBehaviour
         SetScore(score + points);
 
         ghostMultiplier++;
+
+        // Add reward
+        aiagent.AgentAddReward(0.01f);
     }
 
     public void PelletEaten(Pellet pellet)
@@ -104,8 +114,14 @@ public class GameManager : MonoBehaviour
 
         SetScore(score + pellet.points);
 
+        // Add reward
+        aiagent.AgentAddReward(0.001f);
+
         if (!HasRemainingPellets())
         {
+            // Win add reward
+            aiagent.AgentAddReward(2.0f);
+
             pacman.gameObject.SetActive(false);
             Invoke(nameof(NewRound), 3f);
         }
@@ -120,6 +136,10 @@ public class GameManager : MonoBehaviour
         PelletEaten(pellet);
         CancelInvoke(nameof(ResetGhostMultiplier));
         Invoke(nameof(ResetGhostMultiplier), pellet.duration);
+
+        // Add reward
+        aiagent.eatenPowerPellet(pellet.duration);
+        aiagent.AgentAddReward(0.005f);
     }
 
     private bool HasRemainingPellets()
