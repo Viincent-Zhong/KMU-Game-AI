@@ -95,22 +95,32 @@ public class PacmanAgent : Agent
         controlSignal.x = vectorAction[0];
         controlSignal.y = vectorAction[1];
 
-        if (controlSignal.x <= 0) {
-            // Left
-            movement.SetDirection(Vector2.left);
+        float threshold = 0.1f;
+
+        if (Mathf.Abs(controlSignal.x) > threshold)
+        // Movement in horizontal
+        {
+            if (controlSignal.x <= 0) {
+                // Left
+                movement.SetDirection(Vector2.left);
+            }
+            else if (controlSignal.x > 0) {
+                // Right
+                movement.SetDirection(Vector2.right);
+            } 
+        } else if (Mathf.Abs(controlSignal.y) > threshold)
+        // Movement in vertical
+        {
+            if (controlSignal.y <= 0) {
+                // Up
+                movement.SetDirection(Vector2.up);
+            }
+            else if (controlSignal.y > 0) {
+                // Down
+                movement.SetDirection(Vector2.down);
+            }
         }
-        else if (controlSignal.y <= 0) {
-            // Up
-            movement.SetDirection(Vector2.up);
-        }
-        else if (controlSignal.x > 0) {
-            // Right
-            movement.SetDirection(Vector2.right);
-        } 
-        else if (controlSignal.y > 0) {
-            // Down
-            movement.SetDirection(Vector2.down);
-        }
+
 
         float angle = Mathf.Atan2(movement.direction.y, movement.direction.x);
         transform.rotation = Quaternion.AngleAxis(angle * Mathf.Rad2Deg, Vector3.forward);

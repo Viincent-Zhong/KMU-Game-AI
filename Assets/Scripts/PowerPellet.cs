@@ -14,7 +14,8 @@ public class PowerPellet : Pellet
 
     protected override void Eat()
     {
-        pagent.deletePowerPellet(this.gameObject);
+        if (this && this.gameObject)
+            pagent.deletePowerPellet(this.gameObject);
         FindObjectOfType<GameManager>().PowerPelletEaten(this);
     }
 
